@@ -9,7 +9,7 @@ import core.ArrayDistanceMatrix;
 import util.EuclideanCalculator;
 
 /**
- * This class implements an instance of a distance matrix.
+ * This class implements an instance of a distance matrix for randomly generated instances.
  * 
  * @author nicolas.cabrera-malik
  */

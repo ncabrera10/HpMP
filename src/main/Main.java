@@ -8,20 +8,47 @@ import globalParameters.GlobalParameters;
 import globalParameters.GlobalParametersReader;
 import model.Manager;
 
+/**
+ * This class runs the MSH procedure. 
+ * The user can select the instance and the implementation modifying the main method.
+ * 
+ * Instances:
+ * 	Set: Herran et al. (2019)
+ *  Size: Small, Medium, Large
+ * 
+ * If you want to change more parameters, you can modify the "parametersCG.xml" file.
+ * For example:
+ * 	-Printing useful information on console
+ * 	-Modifying the number of iterations for each TSP heuristic..
+ * 	Among others..
+ * 
+ * 
+ * @author nicolas.cabrera-malik
+ *
+ */
 public class Main {
 
 	public static void main(String[] args) {
 		
 		// ----------------SELECT THE MAIN PARAMETERS-----------------------
 		
-			int current_instance = 14; //Line of the txt file
+			// Select the txt file, with the instance specifications: The txt files are located in the experiments folder.
 			
-			String fileName = "ExperimentsSmall.txt"; //Txt file name 
 				//Options: ExperimentsSmall.txt,  "ExperimentsSmall_Random.txt", "ExperiemntsCoindreau.txt", "ExperimentsMedium.txt", "ExperimentsLarge.txt"
+		
+				String fileName = "ExperimentsSmall.txt"; 
 				
-			int current_rep = 1; //Current replicate
+			// Select the instance you want to run, (i.e., the line of the txt file):
 			
-			int threads = 1; //Number of threads for cplex and the MSH
+				int current_instance = 51; 
+			
+			// Select a seed for the random number generator:
+				
+				int current_rep = 1; //Current replicate
+			
+			//Number of threads for cplex and the MSH
+			
+				int threads = 1; 
 			
 		// ------------------------------------------------------------------	
 			
@@ -57,18 +84,17 @@ public class Main {
 		
 		int instance_r = Integer.parseInt(args[3]); //Number of desired rings
 		
-		int instance_l = Integer.parseInt(args[4]);
+		int instance_l = Integer.parseInt(args[4]); //Minimum number of nodes in each ring
 		
-		int instance_u = Integer.parseInt(args[5]);
+		int instance_u = Integer.parseInt(args[5]); //Maximum number of nodes in each ring
 		
-		int instance_rep = current_rep;
+		int instance_rep = current_rep; //Seed
 		
 		String instance_set = args[6]; // TSPlib or Random or Coindreau
 		
 		String instance_tsp_name = args[7]; //If instance_set = TSPLib..
 		
 		int seed = current_rep; //Current seed for the random numbers
-		
 		
 		// Runs the code:
 		

@@ -1,5 +1,13 @@
 package implementations;
 
+/**
+ * This class represents an edge in the graph.
+ * 
+ * Is only used for the LKH heuristic.
+ * 
+ * @author nicolas.cabrera-malik
+ *
+ */
 public class Edge implements Comparable<Edge> { 
 
 	 /*

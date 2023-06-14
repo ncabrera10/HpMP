@@ -8,20 +8,48 @@ import globalParameters.GlobalParameters;
 import globalParameters.GlobalParametersReader;
 import model.Manager;
 
+/**
+ * This class runs the MSH procedure. 
+ * The user can select the instance and the implementation modifying the main method.
+ * 
+ * Instances:
+ * 	Set: Herran et al. (2019)
+ *  Size: Small, Medium, Large
+ * 
+ * If you want to change more parameters, you can modify the "parametersCG.xml" file.
+ * For example:
+ * 	-Printing useful information on console
+ * 	-Modifying the number of iterations for each TSP heuristic..
+ * 	Among others..
+ * 
+ * 
+ * @author nicolas.cabrera-malik
+ *
+ */
 public class Main_loc {
 
 	public static void main(String[] args) {
 		
 		// ----------------SELECT THE MAIN PARAMETERS-----------------------
 		
-			int current_instance = Integer.parseInt(args[0]); //Line of the txt file
 			
-			String fileName = args[1]; //Txt file name 
+			// Select the txt file, with the instance specifications: The txt files are located in the experiments folder.
+			
 				//Options: ExperimentsSmall.txt,  "ExperimentsSmall_Random.txt", "ExperiemntsCoindreau.txt", "ExperimentsMedium.txt", "ExperimentsLarge.txt"
-				
-			int current_rep = Integer.parseInt(args[2]); //Current replicate
+	
+				String fileName = args[1]; //Txt file name 
 			
-			int threads = 1; //Number of threads for cplex and the MSH
+			// Select the instance you want to run, (i.e., the line of the txt file):
+				
+				int current_instance = Integer.parseInt(args[0]);
+			
+			// Select a seed for the random number generator:
+				
+				int current_rep = Integer.parseInt(args[2]); //Current replicate
+			
+			//Number of threads for cplex and the MSH
+			
+				int threads = 1; //Number of threads for cplex and the MSH
 			
 		// ------------------------------------------------------------------	
 			

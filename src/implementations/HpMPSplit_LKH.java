@@ -154,7 +154,7 @@ public class HpMPSplit_LKH implements Split{
 					s.addRoute(r);
 					head=P[head]; //The head of the arc representing the next route to build
 				}
-				else { //Otherwise we just keep thre previous one
+				else { //Otherwise we just keep the previous one
 					//Initialize a new route
 					Route r=JVRAEnv.getRouteFactory().buildRoute();
 					r.add(tsp.get(0));

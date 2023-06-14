@@ -12,6 +12,12 @@ import core.RoutePool;
 import core.Solution;
 import globalParameters.GlobalParameters;
 
+/**
+ * This class solves the set partitioning model to assembly the final solution. 
+ * 
+ * @author nicolas.cabrera-malik
+ *
+ */
 public class CPLEXSetPartitioningSolver implements AssemblyFunction{
 
 	protected int nRequests;

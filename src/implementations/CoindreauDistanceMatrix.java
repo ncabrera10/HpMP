@@ -9,7 +9,7 @@ import core.ArrayDistanceMatrix;
 import util.EuclideanCalculator;
 
 /**
- * This class implements an instance of a distance matrix.
+ * This class implements an instance of a distance matrix, for the Coindreau set of instances.
  * 
  * @author nicolas.cabrera-malik
  */
@@ -86,7 +86,7 @@ public class CoindreauDistanceMatrix extends ArrayDistanceMatrix{
 				
 			}
 		
-			// A dummy depot:
+			// A dummy depot (all distances in-out are 0):
 			
 			for(int i = 1; i < dimension; i++) {
 					

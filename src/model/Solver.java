@@ -402,10 +402,16 @@ public class Solver {
 	}
 	
 	/**
-	 * Updates instance information
-	 * @param in
-	 * @param it
-	 * @param ti
+	 * Updates the instance information
+	 * @param instance_class
+	 * @param instance_dataset
+	 * @param instance_n
+	 * @param instance_r
+	 * @param instance_l
+	 * @param instance_u
+	 * @param instance_rep
+	 * @param instance_set
+	 * @param instance_tsp_name
 	 */
 	public void updateInfo(int instance_class,int instance_dataset,int instance_n,int instance_r,int instance_l,int instance_u,int instance_rep,String instance_set,String instance_tsp_name) {
 		String identf = instance_class+"-"+instance_dataset+"-"+instance_n+"-"+instance_r+"-"+instance_l+"-"+instance_u+"-"+instance_rep;
