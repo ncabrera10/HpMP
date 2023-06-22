@@ -70,6 +70,7 @@ public class LKH {
         	oldDistance = newDistance;
         	improve();
         	newDistance = getDistance();
+        	
         } while(newDistance < oldDistance);
     }
     
@@ -102,6 +103,7 @@ public class LKH {
     public void improve(int t1, boolean previous) {
     	int t2 = previous? getPreviousIdx(t1): getNextIdx(t1);
     	int t3 = getNearestNeighbor(t2);
+    	
     	if(t3 != -1 && getDistance(t2, t3) < getDistance(t1, t2)) { // Implementing the gain criteria
     		startAlgorithm(t1,t2,t3);
     	} else if(!previous) {

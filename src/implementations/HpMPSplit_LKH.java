@@ -117,6 +117,7 @@ public class HpMPSplit_LKH implements Split{
 						tsp_array.add(tsp.get(i));
 					}
 					
+					
 				// Create an LKH object:
 					
 					LKH lkh = new LKH(distances,tsp_array);
@@ -124,7 +125,7 @@ public class HpMPSplit_LKH implements Split{
 				// Initialze the total distance:
 					
 					double iniCost = lkh.getDistance();
-			
+				
 				// Run the algorithm:
 					
 					lkh.runAlgorithm();
@@ -132,7 +133,8 @@ public class HpMPSplit_LKH implements Split{
 				// Get the new total distance:
 					
 					double newCost = lkh.getDistance();
-			
+					
+					
 				// If the distance is better, then we can use this tour instead:
 					
 				if(newCost < iniCost) {

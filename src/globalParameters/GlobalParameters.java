@@ -28,7 +28,8 @@ public class GlobalParameters {
 		public static final int MSH_NUM_ITERATIONS = GlobalParametersReader.<Integer>get("MSH_NUM_ITERATIONS", Integer.class);
 		public static final int MSH_SAMPLING_TIME_LIMIT = GlobalParametersReader.<Integer>get("MSH_SAMPLING_TIME_LIMIT", Integer.class);
 		public static final int MSH_USE_HEURISTICS = GlobalParametersReader.<Integer>get("MSH_USE_HEURISTICS", Integer.class);
-		public static final int MSH_RANDOM_FACTOR = GlobalParametersReader.<Integer>get("MSH_RANDOM_FACTOR", Integer.class);
+		public static final int MSH_RANDOM_FACTOR_HIGH = GlobalParametersReader.<Integer>get("MSH_RANDOM_FACTOR_HIGH", Integer.class);
+		public static final int MSH_RANDOM_FACTOR_LOW = GlobalParametersReader.<Integer>get("MSH_RANDOM_FACTOR_LOW", Integer.class);
 		public static final int MSH_ASSEMBLY_TIME_LIMIT = GlobalParametersReader.<Integer>get("MSH_ASSEMBLY_TIME_LIMIT", Integer.class);
 		
 }

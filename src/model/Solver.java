@@ -86,8 +86,14 @@ public class Solver {
 	
 	// Statistics 
 	
+	/**
+	 * CPU time used to initialize the instance
+	 */
 	private double cpu_initialization;
 	
+	/**
+	 * CPU time used to initialize the MSH
+	 */
 	private double cpu_msh;
 
 	
@@ -143,32 +149,56 @@ public class Solver {
 				NNHeuristic nn = new NNHeuristic(distances);
 				nn.setRandomized(true);
 				nn.setRandomGen(random);
-				nn.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR);
+				nn.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_HIGH);
 				nn.setInitNode(0);
+				
+				NNHeuristic nn_2 = new NNHeuristic(distances);
+				nn_2.setRandomized(true);
+				nn_2.setRandomGen(random);
+				nn_2.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_LOW);
+				nn_2.setInitNode(0);
 			
 			// RNI:
 				
 				InsertionHeuristic ni = new InsertionHeuristic(distances,"NEAREST_INSERTION");
 				ni.setRandomized(true);
 				ni.setRandomGen(random);
-				ni.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR);
+				ni.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_HIGH);
 				ni.setInitNode(0);
+				
+				InsertionHeuristic ni_2 = new InsertionHeuristic(distances,"NEAREST_INSERTION");
+				ni_2.setRandomized(true);
+				ni_2.setRandomGen(random);
+				ni_2.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_LOW);
+				ni_2.setInitNode(0);
 				
 			// RNI:
 				
 				InsertionHeuristic fi = new InsertionHeuristic(distances,"FARTHEST_INSERTION");
 				fi.setRandomized(true);
 				fi.setRandomGen(random);
-				fi.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR);
+				fi.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_HIGH);
 				fi.setInitNode(0);
+				
+				InsertionHeuristic fi_2 = new InsertionHeuristic(distances,"FARTHEST_INSERTION");
+				fi_2.setRandomized(true);
+				fi_2.setRandomGen(random);
+				fi_2.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_LOW);
+				fi_2.setInitNode(0);
 				
 			// BI:
 				
 				InsertionHeuristic bi = new InsertionHeuristic(distances,"BEST_INSERTION");
 				bi.setRandomized(true);
 				bi.setRandomGen(random);
-				bi.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR);
+				bi.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_HIGH);
 				bi.setInitNode(0);
+				
+				InsertionHeuristic bi_2 = new InsertionHeuristic(distances,"BEST_INSERTION");
+				bi_2.setRandomized(true);
+				bi_2.setRandomGen(random);
+				bi_2.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_LOW);
+				bi_2.setInitNode(0);
 				
 		// 6. Initializes the split algorithm: 
 				
@@ -187,13 +217,23 @@ public class Solver {
 			OrderFirstSplitSecondHeuristic fi_h = new OrderFirstSplitSecondHeuristic(fi, s);
 			OrderFirstSplitSecondHeuristic bi_h = new OrderFirstSplitSecondHeuristic(bi, s);
 			
+			OrderFirstSplitSecondHeuristic nn_2h = new OrderFirstSplitSecondHeuristic(nn_2, s);
+			OrderFirstSplitSecondHeuristic ni_2h = new OrderFirstSplitSecondHeuristic(ni_2, s);
+			OrderFirstSplitSecondHeuristic fi_2h = new OrderFirstSplitSecondHeuristic(fi_2, s);
+			OrderFirstSplitSecondHeuristic bi_2h = new OrderFirstSplitSecondHeuristic(bi_2, s);
+			
 		//8. Set up MSH
 			
-			int num_iterations = (int)GlobalParameters.MSH_NUM_ITERATIONS / 4;
+			int num_iterations = (int)GlobalParameters.MSH_NUM_ITERATIONS / 8;
 			OrderFirstSplitSecondSampling f_nn = new OrderFirstSplitSecondSampling(nn_h,num_iterations,instance_r);
 			OrderFirstSplitSecondSampling f_ni = new OrderFirstSplitSecondSampling(ni_h,num_iterations,instance_r);
 			OrderFirstSplitSecondSampling f_fi = new OrderFirstSplitSecondSampling(fi_h,num_iterations,instance_r);
 			OrderFirstSplitSecondSampling f_bi = new OrderFirstSplitSecondSampling(bi_h,num_iterations,instance_r);
+			
+			OrderFirstSplitSecondSampling f_nn_2 = new OrderFirstSplitSecondSampling(nn_2h,num_iterations,instance_r);
+			OrderFirstSplitSecondSampling f_ni_2 = new OrderFirstSplitSecondSampling(ni_2h,num_iterations,instance_r);
+			OrderFirstSplitSecondSampling f_fi_2 = new OrderFirstSplitSecondSampling(fi_2h,num_iterations,instance_r);
+			OrderFirstSplitSecondSampling f_bi_2 = new OrderFirstSplitSecondSampling(bi_2h,num_iterations,instance_r);
 			
 			// Initializes the pool of routes:
 			
@@ -206,6 +246,11 @@ public class Solver {
 			f_ni.setRoutePool(pool);
 			f_fi.setRoutePool(pool);
 			f_bi.setRoutePool(pool);
+			
+			f_nn_2.setRoutePool(pool);
+			f_ni_2.setRoutePool(pool);
+			f_fi_2.setRoutePool(pool);
+			f_bi_2.setRoutePool(pool);
 			
 		//10. Stops the clock for the initialization time:
 			
@@ -222,7 +267,12 @@ public class Solver {
 			msh.addSamplingFunction(f_ni);
 			msh.addSamplingFunction(f_fi);
 			msh.addSamplingFunction(f_bi);
-		
+			
+			msh.addSamplingFunction(f_nn_2);
+			msh.addSamplingFunction(f_ni_2);
+			msh.addSamplingFunction(f_bi_2);
+			msh.addSamplingFunction(f_fi_2);
+			
 		//11. Starts the counter for the msh:
 			
 			Double IniTime_msh = (double) System.nanoTime();
