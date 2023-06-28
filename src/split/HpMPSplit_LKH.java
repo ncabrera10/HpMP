@@ -1,4 +1,4 @@
-package implementations;
+package split;
 
 import java.util.ArrayList;
 
@@ -10,6 +10,7 @@ import core.Solution;
 import core.Split;
 import core.TSPSolution;
 import core.VRPSolution;
+import lkh.LKH;
 
 /**
  * Implements a basic split procedure. 

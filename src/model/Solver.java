@@ -7,11 +7,6 @@ import java.io.PrintWriter;
 import java.util.Random;
 
 import globalParameters.GlobalParameters;
-import implementations.HpMPSplit;
-import implementations.HpMPSplit_LKH;
-import implementations.RandomDistanceMatrix;
-import implementations.CoindreauDistanceMatrix;
-import implementations.TSPLibDistanceMatrix;
 import core.OrderFirstSplitSecondHeuristic;
 import core.Route;
 import core.RouteAttribute;
@@ -19,10 +14,15 @@ import core.RoutePool;
 import msh.CPLEXSetPartitioningSolver;
 import msh.MSH;
 import msh.OrderFirstSplitSecondSampling;
+import split.HpMPSplit;
+import split.HpMPSplit_LKH;
 import core.ArrayDistanceMatrix;
 import core.InsertionHeuristic;
 import core.NNHeuristic;
 import core.Split;
+import distanceMatrices.CoindreauDistanceMatrix;
+import distanceMatrices.RandomDistanceMatrix;
+import distanceMatrices.TSPLibDistanceMatrix;
 import tspReader.TSPLibInstance;
 
 /**

@@ -1,4 +1,4 @@
-package implementations;
+package split;
 
 import core.DistanceMatrix;
 import core.JVRAEnv;

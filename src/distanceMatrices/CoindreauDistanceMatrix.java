@@ -1,4 +1,4 @@
-package implementations;
+package distanceMatrices;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,18 +9,18 @@ import core.ArrayDistanceMatrix;
 import util.EuclideanCalculator;
 
 /**
- * This class implements an instance of a distance matrix for randomly generated instances.
+ * This class implements an instance of a distance matrix, for the Coindreau set of instances.
  * 
  * @author nicolas.cabrera-malik
  */
-public class RandomDistanceMatrix extends ArrayDistanceMatrix{
+public class CoindreauDistanceMatrix extends ArrayDistanceMatrix{
 
 	/**
 	 * Constructs the distance matrix
 	 * @throws IOException 
 	 */
 	
-	public RandomDistanceMatrix(String path) throws IOException {
+	public CoindreauDistanceMatrix(String path) throws IOException {
 		
 		super();
 		
@@ -45,16 +45,8 @@ public class RandomDistanceMatrix extends ArrayDistanceMatrix{
 				// 3. Reades the 2 second line .. and iterates until there are no more nodes
 				
 					line = buff.readLine();
-					line = buff.readLine();
-					line = buff.readLine();
-					line = buff.readLine();
-					line = buff.readLine();
-					line = buff.readLine();
-					line = buff.readLine();
-					line = buff.readLine();
-					
 					while(line != null) {
-						String[] attrs = line.split(";");
+						String[] attrs = line.split(",");
 						nodes.add(Integer.parseInt(attrs[0]));
 						xCoors.add(Double.parseDouble(attrs[1]));
 						yCoors.add(Double.parseDouble(attrs[2]));
@@ -62,6 +54,12 @@ public class RandomDistanceMatrix extends ArrayDistanceMatrix{
 						
 					}
 			
+				// 4. Eliminate the depot, in this problem there is not depot!.
+				
+					nodes.remove(nodes.size()-1);
+					xCoors.remove(xCoors.size()-1);
+					yCoors.remove(yCoors.size()-1);
+				
 					buff.close();
 					
 			
@@ -88,7 +86,7 @@ public class RandomDistanceMatrix extends ArrayDistanceMatrix{
 				
 			}
 		
-			// A dummy depot:
+			// A dummy depot (all distances in-out are 0):
 			
 			for(int i = 1; i < dimension; i++) {
 					

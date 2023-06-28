@@ -1,4 +1,4 @@
-package implementations;
+package lkh;
 
 /**
  * This class represents an edge in the graph.
