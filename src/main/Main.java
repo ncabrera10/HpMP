@@ -36,15 +36,15 @@ public class Main {
 			
 				//Options: ExperimentsSmall.txt,  "ExperimentsSmall_Random.txt", "ExperiemntsCoindreau.txt", "ExperimentsMedium.txt", "ExperimentsLarge.txt"
 		
-				String fileName = "ExperimentsSmall_Random.txt"; 
+				String fileName = "ExperimentsAll.txt"; 
 				
 			// Select the instance you want to run, (i.e., the line of the txt file):
 			
-				int current_instance = 2; 
+				int current_instance = 11; 
 			
 			// Select a seed for the random number generator:
 				
-				int current_rep = 3; //Current replicate
+				int current_rep = 5; //Current replicate
 			
 			//Number of threads for cplex and the MSH
 			

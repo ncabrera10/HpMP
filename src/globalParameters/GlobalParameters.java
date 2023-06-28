@@ -31,5 +31,10 @@ public class GlobalParameters {
 		public static final int MSH_RANDOM_FACTOR_HIGH = GlobalParametersReader.<Integer>get("MSH_RANDOM_FACTOR_HIGH", Integer.class);
 		public static final int MSH_RANDOM_FACTOR_LOW = GlobalParametersReader.<Integer>get("MSH_RANDOM_FACTOR_LOW", Integer.class);
 		public static final int MSH_ASSEMBLY_TIME_LIMIT = GlobalParametersReader.<Integer>get("MSH_ASSEMBLY_TIME_LIMIT", Integer.class);
+		public static final int MSH_NUMBER_FORBID_ARCS = GlobalParametersReader.<Integer>get("MSH_NUMBER_FORBID_ARCS", Integer.class);
+		public static final int MSH_LEARNING_EVERY_ITERATIONS = GlobalParametersReader.<Integer>get("MSH_LEARNING_EVERY_ITERATIONS", Integer.class);
+		public static final boolean MSH_USE_LEARNING_DUALS = GlobalParametersReader.<String>get("MSH_USE_LEARNING_DUALS", String.class).equals("false") ? false:true;
+		
+		
 		
 }

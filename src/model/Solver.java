@@ -7,11 +7,7 @@ import java.io.PrintWriter;
 import java.util.Random;
 
 import globalParameters.GlobalParameters;
-import implementations.HpMPSplit;
-import implementations.HpMPSplit_LKH;
-import implementations.RandomDistanceMatrix;
-import implementations.CoindreauDistanceMatrix;
-import implementations.TSPLibDistanceMatrix;
+import learning.Learner;
 import core.OrderFirstSplitSecondHeuristic;
 import core.Route;
 import core.RouteAttribute;
@@ -19,10 +15,16 @@ import core.RoutePool;
 import msh.CPLEXSetPartitioningSolver;
 import msh.MSH;
 import msh.OrderFirstSplitSecondSampling;
+import split.HpMPSplit;
+import split.HpMPSplit_LKH;
+import split.HpMPSplit_LKH_CG;
 import core.ArrayDistanceMatrix;
 import core.InsertionHeuristic;
 import core.NNHeuristic;
 import core.Split;
+import distanceMatrices.CoindreauDistanceMatrix;
+import distanceMatrices.RandomDistanceMatrix;
+import distanceMatrices.TSPLibDistanceMatrix;
 import tspReader.TSPLibInstance;
 
 /**
@@ -138,6 +140,10 @@ public class Solver {
 				System.exit(0);
 			}
 				
+		// 3. Creates the learner:
+			
+			Learner learner = new Learner(distances);
+		
 		// 4. Sets the seed for the generation of random numbers:
 			
 			Random random = new Random(GlobalParameters.SEED);
@@ -205,10 +211,11 @@ public class Solver {
 			Split s = null;
 				
 			if(GlobalParameters.SPLIT_IMPROVE_PETAL_LKH) {
-				s = new HpMPSplit_LKH(distances,instance_l,instance_u,instance_r);
+				s = new HpMPSplit_LKH(distances,instance_l,instance_u,instance_r,learner);
 			}else {
 				s = new HpMPSplit(distances,instance_l,instance_u,instance_r);
 			}
+			
 			
 		//7. Set up heuristic
 			
@@ -224,7 +231,8 @@ public class Solver {
 			
 		//8. Set up MSH
 			
-			int num_iterations = (int)GlobalParameters.MSH_NUM_ITERATIONS / 8;
+			int num_iterations = (int)GlobalParameters.MSH_LEARNING_EVERY_ITERATIONS / 8;
+			
 			OrderFirstSplitSecondSampling f_nn = new OrderFirstSplitSecondSampling(nn_h,num_iterations,instance_r);
 			OrderFirstSplitSecondSampling f_ni = new OrderFirstSplitSecondSampling(ni_h,num_iterations,instance_r);
 			OrderFirstSplitSecondSampling f_fi = new OrderFirstSplitSecondSampling(fi_h,num_iterations,instance_r);
@@ -257,11 +265,11 @@ public class Solver {
 			Double FinTime = (double) System.nanoTime();
 			cpu_initialization = (FinTime-IniTime)/1000000000;
 					
-		//12. Creates an assembler:
+		//11. Creates an assembler:
 			
 			CPLEXSetPartitioningSolver assembler = new CPLEXSetPartitioningSolver(distances.size()-1,true,instance_r);
 			
-		//13. Initializes the MSH:
+		//12. Initializes the MSH:
 			
 			MSH msh = new MSH(f_nn,assembler,pool,GlobalParameters.THREADS);
 			msh.addSamplingFunction(f_ni);
@@ -273,14 +281,187 @@ public class Solver {
 			msh.addSamplingFunction(f_bi_2);
 			msh.addSamplingFunction(f_fi_2);
 			
-		//11. Starts the counter for the msh:
+		//13. Starts the counter for the msh:
 			
 			Double IniTime_msh = (double) System.nanoTime();
 		
 		//14. Runs the MSH:
 			
-			msh.run();
+			msh.run_sampling();
+			//pool.stop();
+			
+		//15. Learning: Every X iterations forbid a certain # of arcs which were used the most.
+			
+			int num_times = (int)GlobalParameters.MSH_NUM_ITERATIONS/GlobalParameters.MSH_LEARNING_EVERY_ITERATIONS;
+			
+			if(GlobalParameters.MSH_USE_LEARNING_DUALS) {
+				double[] duals = msh.run_linearAssembly();
+				learner.setDuals(duals);
+			}
+			
+			for(int p = 0 ; p<num_times ; p++) {
+				
+				// Allow the previously forbidden arcs:
+				
+				learner.allowArcs();
+				
+				// Find critical arcs:
+				
+				learner.findCriticalArcs();
+				
+				// Forbid the arcs:
+				
+				learner.forbidArcs();
+				
+			// Re-run the sampling phase of the msh (to continue to populate the pool:
+				
+				// Recover the distances matrix:
+				
+					distances = (ArrayDistanceMatrix) learner.getDistances();
+				
+				// 5. Initializes the tsp heuristics:
+				
+				// RNN:
+				
+					nn = new NNHeuristic(distances);
+					nn.setRandomized(true);
+					nn.setRandomGen(random);
+					nn.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_HIGH);
+					nn.setInitNode(0);
+					
+					nn_2 = new NNHeuristic(distances);
+					nn_2.setRandomized(true);
+					nn_2.setRandomGen(random);
+					nn_2.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_LOW);
+					nn_2.setInitNode(0);
+				
+				// RNI:
+					
+					ni = new InsertionHeuristic(distances,"NEAREST_INSERTION");
+					ni.setRandomized(true);
+					ni.setRandomGen(random);
+					ni.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_HIGH);
+					ni.setInitNode(0);
+					
+					ni_2 = new InsertionHeuristic(distances,"NEAREST_INSERTION");
+					ni_2.setRandomized(true);
+					ni_2.setRandomGen(random);
+					ni_2.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_LOW);
+					ni_2.setInitNode(0);
+					
+				// RNI:
+					
+					fi = new InsertionHeuristic(distances,"FARTHEST_INSERTION");
+					fi.setRandomized(true);
+					fi.setRandomGen(random);
+					fi.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_HIGH);
+					fi.setInitNode(0);
+					
+					fi_2 = new InsertionHeuristic(distances,"FARTHEST_INSERTION");
+					fi_2.setRandomized(true);
+					fi_2.setRandomGen(random);
+					fi_2.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_LOW);
+					fi_2.setInitNode(0);
+					
+				// BI:
+					
+					bi = new InsertionHeuristic(distances,"BEST_INSERTION");
+					bi.setRandomized(true);
+					bi.setRandomGen(random);
+					bi.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_HIGH);
+					bi.setInitNode(0);
+					
+					bi_2 = new InsertionHeuristic(distances,"BEST_INSERTION");
+					bi_2.setRandomized(true);
+					bi_2.setRandomGen(random);
+					bi_2.setRandomizationFactor(GlobalParameters.MSH_RANDOM_FACTOR_LOW);
+					bi_2.setInitNode(0);
+					
+			// 6. Initializes the split algorithm: 
+					
+					if(GlobalParameters.SPLIT_IMPROVE_PETAL_LKH) {
+						if(GlobalParameters.MSH_USE_LEARNING_DUALS) {
+							s = new HpMPSplit_LKH_CG(distances,instance_l,instance_u,instance_r,learner);
+						}else {
+							s = new HpMPSplit_LKH(distances,instance_l,instance_u,instance_r,learner);
+							
+						}
+					}else {
+						s = new HpMPSplit(distances,instance_l,instance_u,instance_r);
+					}		
+					
+			//7. Set up heuristic
+				
+				nn_h = new OrderFirstSplitSecondHeuristic(nn, s);
+				ni_h = new OrderFirstSplitSecondHeuristic(ni, s);
+				fi_h = new OrderFirstSplitSecondHeuristic(fi, s);
+				bi_h = new OrderFirstSplitSecondHeuristic(bi, s);
+				
+				nn_2h = new OrderFirstSplitSecondHeuristic(nn_2, s);
+				ni_2h = new OrderFirstSplitSecondHeuristic(ni_2, s);
+				fi_2h = new OrderFirstSplitSecondHeuristic(fi_2, s);
+				bi_2h = new OrderFirstSplitSecondHeuristic(bi_2, s);
+				
+			//8. Set up MSH
+				
+				f_nn = new OrderFirstSplitSecondSampling(nn_h,num_iterations,instance_r);
+				f_ni = new OrderFirstSplitSecondSampling(ni_h,num_iterations,instance_r);
+				f_fi = new OrderFirstSplitSecondSampling(fi_h,num_iterations,instance_r);
+				f_bi = new OrderFirstSplitSecondSampling(bi_h,num_iterations,instance_r);
+				
+				f_nn_2 = new OrderFirstSplitSecondSampling(nn_2h,num_iterations,instance_r);
+				f_ni_2 = new OrderFirstSplitSecondSampling(ni_2h,num_iterations,instance_r);
+				f_fi_2 = new OrderFirstSplitSecondSampling(fi_2h,num_iterations,instance_r);
+				f_bi_2 = new OrderFirstSplitSecondSampling(bi_2h,num_iterations,instance_r);
+				
+				// Initializes the pool of routes:
+				
+				//pool = new RoutePool();
+				
+			//9. Starts the pool:
+				
+				//pool.start();
+				f_nn.setRoutePool(pool);
+				f_ni.setRoutePool(pool);
+				f_fi.setRoutePool(pool);
+				f_bi.setRoutePool(pool);
+				
+				f_nn_2.setRoutePool(pool);
+				f_ni_2.setRoutePool(pool);
+				f_fi_2.setRoutePool(pool);
+				f_bi_2.setRoutePool(pool);
+				
+			//12. Creates an assembler:
+				
+				assembler = new CPLEXSetPartitioningSolver(distances.size()-1,true,instance_r);
+				
+			//13. Initializes the MSH:
+				
+				msh = new MSH(f_nn,assembler,pool,GlobalParameters.THREADS);
+				msh.addSamplingFunction(f_ni);
+				msh.addSamplingFunction(f_fi);
+				msh.addSamplingFunction(f_bi);
+				
+				msh.addSamplingFunction(f_nn_2);
+				msh.addSamplingFunction(f_ni_2);
+				msh.addSamplingFunction(f_bi_2);
+				msh.addSamplingFunction(f_fi_2);
 
+			//14. Runs the MSH:
+				
+				msh.run_sampling();
+				if(GlobalParameters.MSH_USE_LEARNING_DUALS) {
+					double[] duals = msh.run_linearAssembly();
+					learner.setDuals(duals);
+				}
+				
+				//pool.stop();	
+		}
+			
+		// Assembly the final solution
+			
+			msh.run_assembly();
+			
 		//15. Stops the clock for the MSH:
 			
 			Double FinTime_msh = (double) System.nanoTime();
@@ -290,7 +471,6 @@ public class Solver {
 			
 			printSummary(msh,assembler,pool);
 			printSolution(msh,assembler,pool);
-	
 		
 	}
 	

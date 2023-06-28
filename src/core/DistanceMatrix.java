@@ -32,4 +32,14 @@ public interface DistanceMatrix {
 	 */
 	public int size();
 		
+	// NEW:
+	
+	/**
+	 * Sets the distance between nodes <code>i</code> and <code>j</code>
+	 * @param i
+	 * @param j
+	 * @param distance the distance between nodes <code>i</code> and <code>j</code>
+	 */
+	public void setDistance(int i,int j, double distance);
+	
 }

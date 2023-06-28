@@ -122,7 +122,6 @@ public class Arc {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return tailID+","+headID;
 	}
 	

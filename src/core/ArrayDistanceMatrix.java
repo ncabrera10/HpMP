@@ -65,4 +65,9 @@ public class ArrayDistanceMatrix implements DistanceMatrix{
 		this.distances=distances;
 	}
 
+	@Override
+	public void setDistance(int i, int j, double distance) {
+		this.distances[i][j] = distance;
+	}
+
 }

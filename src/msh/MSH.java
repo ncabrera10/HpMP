@@ -96,4 +96,38 @@ public class MSH implements Algorithm{
 		return assemblyFunction.assembleSolution(bound,pool);
 	}
 
+	public void run_sampling() {
+		
+		// Number of threads:
+		
+		final int threads=Math.min(nSamplingThreads, samplingFunctions.size());
+		
+		// Executors:
+		
+		ExecutorService se=Executors.newFixedThreadPool(threads);
+		
+		// Run each sampling function:
+		
+		try {
+			se.invokeAll(samplingFunctions);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void run_assembly() {
+		
+		// Assemble a solution:
+		
+		assemblyFunction.assembleSolution(pool);
+	}
+	
+	public double[] run_linearAssembly() {
+		
+		// Assemble a solution:
+		
+		return (assemblyFunction.assembleFractionalSolution(pool));
+		
+	}
 }

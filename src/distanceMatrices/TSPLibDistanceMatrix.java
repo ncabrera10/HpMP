@@ -1,4 +1,4 @@
-package implementations;
+package distanceMatrices;
 
 import core.ArrayDistanceMatrix;
 import tspReader.TSPLibInstance;

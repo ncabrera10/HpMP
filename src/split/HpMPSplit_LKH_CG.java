@@ -1,4 +1,4 @@
-package implementations;
+package split;
 
 import java.util.ArrayList;
 
@@ -10,12 +10,14 @@ import core.Solution;
 import core.Split;
 import core.TSPSolution;
 import core.VRPSolution;
+import learning.Learner;
+import lkh.LKH;
 
 /**
  * Implements a basic split procedure. 
  * 
  */
-public class HpMPSplit_LKH implements Split{
+public class HpMPSplit_LKH_CG implements Split{
 
 	/**
 	 * The distance matrix
@@ -37,6 +39,11 @@ public class HpMPSplit_LKH implements Split{
 	 */
 	private final int ri;
 	
+	/**
+	 * The learner 
+	 */
+	
+	private Learner learner;
 	
 	/**
 	 * This method creates a new instance of the HpMP split algorithm
@@ -44,11 +51,13 @@ public class HpMPSplit_LKH implements Split{
 	 * @param m
 	 * @param M
 	 */
-	public HpMPSplit_LKH(DistanceMatrix distances, int m, int M, int r) {
+	public HpMPSplit_LKH_CG(DistanceMatrix distances, int m, int M, int r, Learner learner) {
 		this.distances = distances;
 		this.m = m;
 		this.M = M;
 		this.ri = r;
+		this.learner = learner;
+		
 	}
 	
 	@Override
@@ -66,19 +75,23 @@ public class HpMPSplit_LKH implements Split{
 			
 			//Initilize auxiliary variables
 			double load=0;
-			double cost=0;	
+			double cost=0;
+			double rCost=0;
 			int j=i;
 			
 			//Explore all routes starting at node i
 			while(load <= M && j < r.size()-1){
 				//Compute metrics for the route: load and cost
 				load+=1;
+				rCost-=learner.getDuals()[r.get(j)-1];
 				if(i==j)
 					cost = 0;
-				else
+				else {
 					cost = cost + distances.getDistance(r.get(j-1),r.get(j)) + distances.getDistance(r.get(j),r.get(i)) - distances.getDistance(r.get(j-1),r.get(i));
-				//Check the route's feasibility
-				if(load >= m && load <= M){
+				}
+					
+				//Check the route's feasibility and reduced cost (is it < dual_ring_ctr) ?
+				if(load >= m && load <= M && (cost + rCost) < learner.getLastDual()){
 					if(V[i-1] + cost < V[j]){
 						V[j] = V[i-1] + cost;
 						P[j] = i-1;
@@ -147,8 +160,14 @@ public class HpMPSplit_LKH implements Split{
 						r.add(node);
 						load += 1;
 						nodesToRoute--;
+						if(i<lkh.tour.length-1) {
+							learner.getArcs_map().get(node+"-"+lkh.tour[i+1]).increaseCounter();
+						}
+						
 					}
+					learner.getArcs_map().get(lkh.tour[lkh.tour.length-1]+"-"+lkh.tour[0]).increaseCounter();
 					r.add(tsp.get(0));
+					
 					double cost=newCost;
 					r.setAttribute(RouteAttribute.COST,cost);
 					of+=cost;
@@ -166,7 +185,12 @@ public class HpMPSplit_LKH implements Split{
 						r.add(node);
 						load += 1;
 						nodesToRoute--;
+						if(i<head) {
+							learner.getArcs_map().get(node+"-"+tsp.get(i+1)).increaseCounter();
+						}
 					}
+					learner.getArcs_map().get(tsp.get(head)+"-"+tsp.get(tail)).increaseCounter();
+					
 					r.add(tsp.get(0));
 					double cost=V[head]-V[P[head]];
 					r.setAttribute(RouteAttribute.COST,cost);

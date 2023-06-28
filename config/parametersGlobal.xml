@@ -19,5 +19,8 @@
 <entry key="MSH_RANDOM_FACTOR_HIGH">10</entry>
 <entry key="MSH_RANDOM_FACTOR_LOW">3</entry>
 <entry key="MSH_ASSEMBLY_TIME_LIMIT">60</entry>
+<entry key="MSH_NUMBER_FORBID_ARCS">1</entry>
+<entry key="MSH_LEARNING_EVERY_ITERATIONS">500</entry>
+<entry key="MSH_USE_LEARNING_DUALS">false</entry>
 
 </properties>
