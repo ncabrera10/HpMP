@@ -7,6 +7,7 @@ import core.Route;
 import core.RoutePool;
 import core.Solution;
 import core.VRPSolution;
+import globalParameters.GlobalParameters;
 
 public class OrderFirstSplitSecondSampling implements SamplingFunction{
 
@@ -15,12 +16,10 @@ public class OrderFirstSplitSecondSampling implements SamplingFunction{
 	private int samplesDrawn=0;
 	private RoutePool pool=null;
 	private OptimizationSense sense=JVRAEnv.getOptimizationSense();
-	private final int numberOfRings;
 	
-	public OrderFirstSplitSecondSampling(OrderFirstSplitSecondHeuristic h,int nSamples,int nR){
+	public OrderFirstSplitSecondSampling(OrderFirstSplitSecondHeuristic h,int nSamples){
 		this.h=h;
 		this.nSamples=nSamples;
-		this.numberOfRings=nR;
 	}
 
 	@Override
@@ -31,18 +30,29 @@ public class OrderFirstSplitSecondSampling implements SamplingFunction{
 		VRPSolution s, best=null;
 		int i;
 		//Sampling
-		for(i=1;i<=this.nSamples;i++){
+		Double IniTime = (double) System.nanoTime();
+		boolean stop = false;
+		int routes = 0;
+		for(i=1;i<=this.nSamples && !stop;i++){
 			s=(VRPSolution)h.run();
+			routes+=s.getRoutes().size();
 			for(Route r:s.getRoutes()){
 				pool.add(r);
 			}
 			this.samplesDrawn++;
 			//Update the best bound
-			if(best==null) //&& s.getRoutes().size() == numberOfRings //TODO: INCLUDE THIS.
+			if(best==null)
 				best=s;
 			else if(this.sense==OptimizationSense.MINIMIZATION&&s.getOF()<best.getOF()
 					||this.sense==OptimizationSense.MAXIMIZATION&&s.getOF()>best.getOF())
 				best=s;
+			//Check stopping conditions:
+			if((System.nanoTime()-IniTime)/1000000000 > GlobalParameters.MSH_SAMPLING_TIME_LIMIT) {
+				stop = true;
+			}
+			if(routes > GlobalParameters.MSH_MAX_POOL_SIZE) {
+				stop = true;
+			}
 		}
 		return best;
 	}

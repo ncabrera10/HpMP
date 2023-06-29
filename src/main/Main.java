@@ -40,15 +40,15 @@ public class Main {
 				
 			// Select the instance you want to run, (i.e., the line of the txt file):
 			
-				int current_instance = 1; 
+				int current_instance = 49; 
 			
 			// Select a seed for the random number generator:
 				
-				int current_rep = 2; //Current replicate
+				int current_rep = 5; //Current replicate
 			
 			//Number of threads for cplex and the MSH
 			
-				int threads = 1; 
+				int threads = 8; 
 			
 		// ------------------------------------------------------------------	
 			

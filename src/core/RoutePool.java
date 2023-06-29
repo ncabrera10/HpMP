@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import globalParameters.GlobalParameters;
+
 /**
  * Implements a route pool. Technically, a route pool is simply a set of routes with no particular correlation.
  * Route pools are usually used as long term memory in VRP heuristics.
@@ -36,7 +38,7 @@ public final class RoutePool implements Runnable{
 	/**
 	 * Timeout between two calls to dequeue routes from <code>queue</code>
 	 */
-	private long timeout=1000;
+	private long timeout=GlobalParameters.TIME_OUT_POOL_MS;
 	/**
 	 * Time utins for <code>timeout</code>
 	 */
@@ -83,7 +85,9 @@ public final class RoutePool implements Runnable{
 		this.t=new Thread(this,"Route Pool");
 		t.start();
 		this.isStoring=true;
-		Logger.getLogger("EXECUTION").log(Level.INFO,Thread.currentThread().getName()+" started the route pool");
+		if(GlobalParameters.PRINT_IN_CONSOLE) {
+			Logger.getLogger("EXECUTION").log(Level.INFO,Thread.currentThread().getName()+" started the route pool");
+		}
 	}
 
 	/**
@@ -105,7 +109,10 @@ public final class RoutePool implements Runnable{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		Logger.getLogger("EXECUTION").log(Level.INFO,Thread.currentThread().getName()+" stoped the route pool");
+		if(GlobalParameters.PRINT_IN_CONSOLE) {
+			Logger.getLogger("EXECUTION").log(Level.INFO,Thread.currentThread().getName()+" stoped the route pool");
+			
+		}
 	}
 
 	@Override
@@ -138,7 +145,9 @@ public final class RoutePool implements Runnable{
 	 */
 	public void clear(){
 		this.pool.clear();
-		Logger.getLogger("EXECUTION").log(Level.INFO,Thread.currentThread().getName()+" cleared the route pool");
+		if(GlobalParameters.PRINT_IN_CONSOLE) {
+			Logger.getLogger("EXECUTION").log(Level.INFO,Thread.currentThread().getName()+" cleared the route pool");
+		}
 	}
 	/**
 	 * 
@@ -174,7 +183,6 @@ public final class RoutePool implements Runnable{
 	public synchronized Route[] toArray(){
 		
 		Route[] array=new Route[this.pool.size()];
-		System.out.println(this.pool.size()+" - "+array.length);
 		Iterator<Route> it=this.pool.values().iterator();
 		int r=0;
 		while(it.hasNext()){

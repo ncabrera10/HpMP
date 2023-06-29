@@ -19,6 +19,7 @@ public class GlobalParameters {
 		public static int SEED = GlobalParametersReader.<Integer>get("SEED", Integer.class);
 		public static int THREADS = GlobalParametersReader.<Integer>get("THREADS", Integer.class);
 		public static final boolean PRINT_IN_CONSOLE = GlobalParametersReader.<String>get("PRINT_IN_CONSOLE", String.class).equals("false") ? false:true;
+		public static final int TIME_OUT_POOL_MS = GlobalParametersReader.<Integer>get("TIME_OUT_POOL_MS", Integer.class);
 		
 		
 	// MSH  parameters:

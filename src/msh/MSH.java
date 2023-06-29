@@ -36,7 +36,13 @@ public class MSH implements Algorithm{
 	/**
 	 * The pool where sampled routes are stored
 	 */
-	private RoutePool pool;
+	private ArrayList<RoutePool> pools;
+	
+	/**
+	 * Bound on the final solution
+	 */
+	private Solution bound=null;
+	
 	/**
 	 * The number of threads running the sampling phase
 	 */
@@ -48,12 +54,12 @@ public class MSH implements Algorithm{
 	 * @param pool the route pool
 	 * @param nSamplingThreads the number of threads running the sampling phase
 	 */
-	public MSH(SamplingFunction samplingFunction, AssemblyFunction assemblyFuncion, RoutePool pool, int nSamplingThreads){
+	public MSH(SamplingFunction samplingFunction, AssemblyFunction assemblyFuncion, ArrayList<RoutePool> pools, int nSamplingThreads){
 		this.samplingFunctions=new ArrayList<>();
 		this.samplingFunctions.add(samplingFunction);
 		this.assemblyFunction=assemblyFuncion;
 		this.sense=JVRAEnv.getOptimizationSense();
-		this.pool=pool;
+		this.pools=pools;
 		this.nSamplingThreads=nSamplingThreads;
 	}
 	/**
@@ -94,9 +100,72 @@ public class MSH implements Algorithm{
 				}
 			}
 		}
-		//Assemble the final solution		
-		pool.stop();
-		return assemblyFunction.assembleSolution(bound,pool);
+		
+		//Stop all the pools:
+		
+		for(RoutePool pool : pools) {
+			pool.stop();
+		}
+		
+		//Assemble the final solution	
+		
+		return assemblyFunction.assembleSolution(bound,pools);
+	}
+	
+	public void run_sampling() {
+		//Set up an executor to run the sampling phase
+		final int threads=Math.min(nSamplingThreads, samplingFunctions.size());
+		ExecutorService se=Executors.newFixedThreadPool(threads);
+		//Set up futures
+		List<Future<Solution>> bounds=new ArrayList<>();
+		try {
+			bounds=se.invokeAll(samplingFunctions);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		//Get the best bound
+
+		for(Future<Solution> f:bounds){
+			if(f!=null){
+				try {
+					if(bound==null) {
+							bound=f.get();
+					}
+					else if(sense==OptimizationSense.MINIMIZATION&&f.get().getOF()<bound.getOF()
+							||sense==OptimizationSense.MAXIMIZATION&&f.get().getOF()>bound.getOF()) {
+							bound=f.get();
+					}
+				} catch (InterruptedException | ExecutionException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		//Stop all the pools:
+		
+		for(RoutePool pool : pools) {
+			pool.stop();
+		}
+		
+		
 	}
 
+	public Solution run_assembly() {
+
+		//Assemble the final solution	
+		
+		return assemblyFunction.assembleSolution(bound,pools);
+	}
+	
+	/**
+	 * This method returns the current size of the pool, summing the size of the individual pools.
+	 * @return
+	 */
+	public int getPoolSize() {
+		int size = 0;
+		for(RoutePool pool : pools) {
+			size += pool.size();
+		}
+		return size;
+	}
 }

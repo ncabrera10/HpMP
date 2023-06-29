@@ -37,36 +37,50 @@ public class CPLEXSetPartitioningSolver implements AssemblyFunction{
 	}
 
 	@Override
-	public Solution assembleSolution(Solution bound, RoutePool pool) {
-		Route[] routes=pool.toArray();
+	public Solution assembleSolution(Solution bound, ArrayList<RoutePool> pools) {
+		
+		 //Total number of routes:
+		
+		int size = 0;
+		for(RoutePool pool : pools) {
+			size += pool.size();
+		}
+		
+		// Cplex model:
+		
 		 try {
 			//Build CPLEX environment
 			cplex = new IloCplex();
 			//Create decision variables
-			x=cplex.boolVarArray(routes.length);
+			x=cplex.boolVarArray(size);
 			//Create covering/partitioning constraints and objective function
 			IloLinearNumExpr[] constraints = new IloLinearNumExpr[nRequests];
 			IloLinearNumExpr numberOfRings = cplex.linearNumExpr();
 			IloLinearNumExpr of=cplex.linearNumExpr();
 			//Add terms to the covering/partitioning constraints and objective function
 			int start,end;
-			for(int r=0;r<routes.length;r++){
-				of.addTerm((double)routes[r].getAttribute(RouteAttribute.COST),x[r]);
-				ArrayList<Integer> route=(ArrayList<Integer>) routes[r].getRoute();
-				if(hasTerminals){
-					start=1;
-					end=route.size()-1;
-				}else{
-					start=0;
-					end=route.size();
+			int counter = 0;
+			for(RoutePool pool : pools) {
+				Route[] routes=pool.toArray();
+				for(int r=0;r<routes.length;r++){
+					of.addTerm((double)routes[r].getAttribute(RouteAttribute.COST),x[counter]);
+					ArrayList<Integer> route=(ArrayList<Integer>) routes[r].getRoute();
+					if(hasTerminals){
+						start=1;
+						end=route.size()-1;
+					}else{
+						start=0;
+						end=route.size();
+					}
+					for(int i=start;i<end;i++){
+						if(constraints[route.get(i)-1]==null)
+							constraints[route.get(i)-1]=cplex.linearNumExpr();
+						constraints[route.get(i)-1].addTerm(1,x[counter]);
+					}
+					numberOfRings.addTerm(1, x[counter]);
+					counter++;
 				}
-				for(int i=start;i<end;i++){
-					if(constraints[route.get(i)-1]==null)
-						constraints[route.get(i)-1]=cplex.linearNumExpr();
-					constraints[route.get(i)-1].addTerm(1,x[r]);
-				}
-				numberOfRings.addTerm(1, x[r]);
-			}
+		 	}
 			//Add constraints to the model
 			for(int i=0;i<constraints.length;i++){
 				cplex.addEq(1,constraints[i]);
@@ -91,11 +105,16 @@ public class CPLEXSetPartitioningSolver implements AssemblyFunction{
 			 
 			 solution = new ArrayList<Route>();
 			 
-			 for(int r=0;r<routes.length;r++) {
-				if(cplex.getValue(x[r]) > 0){
-					numberOfRingsSolution++;
-					solution.add(routes[r]);
-					//System.out.println(r+" - "+routes[r].getAttribute(RouteAttribute.COST)+" - "+routes[r].getRoute().toString());
+			 counter = 0;
+			 for(RoutePool pool : pools) {
+				Route[] routes=pool.toArray();
+				for(int r=0;r<routes.length;r++){
+					if(cplex.getValue(x[counter]) > 0.5){
+						numberOfRingsSolution++;
+						solution.add(routes[r]);
+						//System.out.println(r+" - "+routes[r].getAttribute(RouteAttribute.COST)+" - "+routes[r].getRoute().toString());
+					}
+					counter++;
 				}
 			}
 			
