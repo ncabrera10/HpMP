@@ -78,21 +78,24 @@ public class MSH implements Algorithm{
 		}
 		//Get the best bound
 		Solution bound=null;
+		
 		for(Future<Solution> f:bounds){
 			if(f!=null){
 				try {
-					if(bound==null)
-						bound=f.get();
+					if(bound==null) {
+							bound=f.get();
+					}
 					else if(sense==OptimizationSense.MINIMIZATION&&f.get().getOF()<bound.getOF()
-							||sense==OptimizationSense.MAXIMIZATION&&f.get().getOF()>bound.getOF())
-						bound=f.get();						
+							||sense==OptimizationSense.MAXIMIZATION&&f.get().getOF()>bound.getOF()) {
+							bound=f.get();
+					}
 				} catch (InterruptedException | ExecutionException e) {
 					e.printStackTrace();
 				}
 			}
 		}
 		//Assemble the final solution		
-		//pool.stop();
+		pool.stop();
 		return assemblyFunction.assembleSolution(bound,pool);
 	}
 

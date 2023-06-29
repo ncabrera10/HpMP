@@ -172,7 +172,9 @@ public final class RoutePool implements Runnable{
 	//TODO make thread safe
 	//TODO document method
 	public synchronized Route[] toArray(){
+		
 		Route[] array=new Route[this.pool.size()];
+		System.out.println(this.pool.size()+" - "+array.length);
 		Iterator<Route> it=this.pool.values().iterator();
 		int r=0;
 		while(it.hasNext()){

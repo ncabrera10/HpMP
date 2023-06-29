@@ -15,6 +15,7 @@ import msh.CPLEXSetPartitioningSolver;
 import msh.MSH;
 import msh.OrderFirstSplitSecondSampling;
 import split.HpMPSplit;
+import split.HpMPSplit_ALL;
 import split.HpMPSplit_LKH;
 import core.ArrayDistanceMatrix;
 import core.InsertionHeuristic;
@@ -207,7 +208,12 @@ public class Solver {
 			if(GlobalParameters.SPLIT_IMPROVE_PETAL_LKH) {
 				s = new HpMPSplit_LKH(distances,instance_l,instance_u,instance_r);
 			}else {
-				s = new HpMPSplit(distances,instance_l,instance_u,instance_r);
+				if(GlobalParameters.SPLIT_ADD_ALL) {
+					s = new HpMPSplit_ALL(distances,instance_l,instance_u,instance_r);
+				}else {
+					s = new HpMPSplit(distances,instance_l,instance_u,instance_r);
+				}
+				
 			}
 			
 		//7. Set up heuristic

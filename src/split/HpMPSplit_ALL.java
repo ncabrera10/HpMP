@@ -13,7 +13,7 @@ import core.VRPSolution;
  * Implements a basic split procedure. 
  * 
  */
-public class HpMPSplit implements Split{
+public class HpMPSplit_ALL implements Split{
 
 	/**
 	 * The distance matrix
@@ -42,7 +42,7 @@ public class HpMPSplit implements Split{
 	 * @param m
 	 * @param M
 	 */
-	public HpMPSplit(DistanceMatrix distances, int m, int M, int r) {
+	public HpMPSplit_ALL(DistanceMatrix distances, int m, int M, int r) {
 		this.distances = distances;
 		this.m = m;
 		this.M = M;
@@ -51,13 +51,18 @@ public class HpMPSplit implements Split{
 	
 	@Override
 	public Solution split(TSPSolution r) {
-
+		
 		//Initialize labels
 		int[] P=new int[r.size()-1];			//The predecesor labels
 		double[] V=new double[r.size()-1];		//The shortest path labels
 		for(int i=1;i<r.size()-1;i++){
 			V[i]=Double.MAX_VALUE;
 		}
+		
+		//Initialize pool of routes:
+		
+		VRPSolution s=new VRPSolution();
+		double of = 0.0;
 		
 		//Build the auxiliary graph and find the shortest path at the same time
 		for(int i=1; i<r.size(); i++){
@@ -77,6 +82,18 @@ public class HpMPSplit implements Split{
 					cost = cost + distances.getDistance(r.get(j-1),r.get(j)) + distances.getDistance(r.get(j),r.get(i)) - distances.getDistance(r.get(j-1),r.get(i));
 				//Check the route's feasibility
 				if(load >= m && load <= M){
+					
+					// Adds the route to the pool:
+					Route route = JVRAEnv.getRouteFactory().buildRoute();
+					route.add(r.get(0));
+					for(int k=i; k<=j; k++) {
+						route.add(r.get(k));
+					}
+					route.add(r.get(0));
+					route.setAttribute(RouteAttribute.COST,cost);
+					route.setAttribute(RouteAttribute.LOAD, load);
+					s.addRoute(route);
+					of+=cost;
 					if(V[i-1] + cost < V[j]){
 						V[j] = V[i-1] + cost;
 						P[j] = i-1;
@@ -85,48 +102,9 @@ public class HpMPSplit implements Split{
 				j++;
 			}
 		}
-		return extractRoutes(P,V, r);
-	}
-
-	/**
-	 * Extracts the routes from the labels, builds a solution, and evaluates the solution
-	 * @param P the predecessors
-	 * @param V the shortest path labels
-	 * @param tsp the TSP tour
-	 * @return a solution with the routes in the optimal partition of the TSP tour
-	 */
-	private VRPSolution extractRoutes(int[] P, double[] V, TSPSolution tsp){
-		//EXO 2: try to write this algorithm
-		//Initialize the solution
-		VRPSolution s=new VRPSolution();
-		double of=0;
-		int head=P.length-1; //The head of the arc representing the last route
-		int  nodesToRoute=P.length-1;
-		while (nodesToRoute>0){
-			int tail=P[head]+1; //The tail of the arc representing the route being currently built\
-			//Initialize a new route
-			Route r=JVRAEnv.getRouteFactory().buildRoute();
-			r.add(tsp.get(0));
-			double load=0;
-			for(int i=tail; i<=head;i++){ //Build the route
-				int node = tsp.get(i);
-				r.add(node);
-				load += 1;
-				nodesToRoute--;
-			}
-			r.add(tsp.get(0));
-			double cost=V[head]-V[P[head]];
-			r.setAttribute(RouteAttribute.COST,cost);
-			of+=cost;
-			r.setAttribute(RouteAttribute.LOAD, load);
-			s.addRoute(r);
-			head=P[head]; //The head of the arc representing the next route to build
-		}
-		if(s.getRoutes().size() == this.ri) {
-			s.setOF(of);
-		}else {
-			s.setOF(of*100);
-		}		
+		s.setOF(of);
 		return s;
 	}
+
+
 }

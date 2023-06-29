@@ -44,7 +44,7 @@ public class Main {
 			
 			// Select a seed for the random number generator:
 				
-				int current_rep = 1; //Current replicate
+				int current_rep = 2; //Current replicate
 			
 			//Number of threads for cplex and the MSH
 			

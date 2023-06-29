@@ -179,7 +179,11 @@ public class HpMPSplit_LKH implements Split{
 	
 			
 		}
-		s.setOF(of);
+		if(s.getRoutes().size() == this.ri) {
+			s.setOF(of);
+		}else {
+			s.setOF(of*100);
+		}	
 		return s;
 	}
 }
