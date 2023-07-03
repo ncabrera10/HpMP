@@ -18,6 +18,7 @@ import msh.OrderFirstSplitSecondSampling;
 import split.HpMPSplit;
 import split.HpMPSplit_ALL;
 import split.HpMPSplit_LKH;
+import split.HpMPSplit_LKH_CSP;
 import core.ArrayDistanceMatrix;
 import core.InsertionHeuristic;
 import core.NNHeuristic;
@@ -148,17 +149,33 @@ public class Solver {
 		// 4. Sets the seed for the generation of random numbers:
 			
 			Random random_nn = new Random(GlobalParameters.SEED);
-			Random random_ni = new Random(GlobalParameters.SEED);
-			Random random_fi = new Random(GlobalParameters.SEED);
-			Random random_bi = new Random(GlobalParameters.SEED);
+			Random random_ni = new Random(GlobalParameters.SEED+10);
+			Random random_fi = new Random(GlobalParameters.SEED+20);
+			Random random_bi = new Random(GlobalParameters.SEED+30);
 			
-			Random random_nn_2 = new Random(GlobalParameters.SEED);
-			Random random_ni_2 = new Random(GlobalParameters.SEED);
-			Random random_fi_2 = new Random(GlobalParameters.SEED);
-			Random random_bi_2 = new Random(GlobalParameters.SEED);
+			Random random_nn_2 = new Random(GlobalParameters.SEED+40);
+			Random random_ni_2 = new Random(GlobalParameters.SEED+50);
+			Random random_fi_2 = new Random(GlobalParameters.SEED+60);
+			Random random_bi_2 = new Random(GlobalParameters.SEED+70);
 			
+			Random random_rn = new Random(GlobalParameters.SEED+80);
+			Random random_rn_2 = new Random(GlobalParameters.SEED+90);
 			
 		// 5. Initializes the tsp heuristics:
+			
+			// RANDOM:
+			
+				NNHeuristic rn = new NNHeuristic(distances);
+				rn.setRandomized(true);
+				rn.setRandomGen(random_rn);
+				rn.setRandomizationFactor(instance_n);
+				rn.setInitNode(0);
+				
+				NNHeuristic rn_2 = new NNHeuristic(distances);
+				rn_2.setRandomized(true);
+				rn_2.setRandomGen(random_rn_2);
+				rn_2.setRandomizationFactor((int) Math.floor(instance_n/2));
+				rn_2.setInitNode(0);
 			
 			// RNN:
 			
@@ -221,7 +238,11 @@ public class Solver {
 			Split s = null;
 				
 			if(GlobalParameters.SPLIT_IMPROVE_PETAL_LKH) {
-				s = new HpMPSplit_LKH(distances,instance_l,instance_u,instance_r);
+				if(GlobalParameters.SPLIT_SOLVE_CSP) {
+					s = new HpMPSplit_LKH_CSP(distances,instance_l,instance_u,instance_r);
+				}else {
+					s = new HpMPSplit_LKH(distances,instance_l,instance_u,instance_r);
+				}
 			}else {
 				if(GlobalParameters.SPLIT_ADD_ALL) {
 					s = new HpMPSplit_ALL(distances,instance_l,instance_u,instance_r);
@@ -243,9 +264,12 @@ public class Solver {
 			OrderFirstSplitSecondHeuristic fi_2h = new OrderFirstSplitSecondHeuristic(fi_2, s);
 			OrderFirstSplitSecondHeuristic bi_2h = new OrderFirstSplitSecondHeuristic(bi_2, s);
 			
+			OrderFirstSplitSecondHeuristic rn_h = new OrderFirstSplitSecondHeuristic(rn, s);
+			OrderFirstSplitSecondHeuristic rn_2h = new OrderFirstSplitSecondHeuristic(rn_2, s);
+			
 		//8. Set up MSH
 			
-			int num_iterations = (int)GlobalParameters.MSH_NUM_ITERATIONS / 8;
+			int num_iterations = (int)GlobalParameters.MSH_NUM_ITERATIONS / 10;
 			OrderFirstSplitSecondSampling f_nn = new OrderFirstSplitSecondSampling(nn_h,num_iterations);
 			OrderFirstSplitSecondSampling f_ni = new OrderFirstSplitSecondSampling(ni_h,num_iterations);
 			OrderFirstSplitSecondSampling f_fi = new OrderFirstSplitSecondSampling(fi_h,num_iterations);
@@ -255,6 +279,9 @@ public class Solver {
 			OrderFirstSplitSecondSampling f_ni_2 = new OrderFirstSplitSecondSampling(ni_2h,num_iterations);
 			OrderFirstSplitSecondSampling f_fi_2 = new OrderFirstSplitSecondSampling(fi_2h,num_iterations);
 			OrderFirstSplitSecondSampling f_bi_2 = new OrderFirstSplitSecondSampling(bi_2h,num_iterations);
+			
+			OrderFirstSplitSecondSampling f_rn = new OrderFirstSplitSecondSampling(rn_h,num_iterations);
+			OrderFirstSplitSecondSampling f_rn_2 = new OrderFirstSplitSecondSampling(rn_2h,num_iterations);
 			
 			// Initializes all the pool of routes:
 			
@@ -270,6 +297,10 @@ public class Solver {
 			RoutePool pool_fi_2= new RoutePool();
 			RoutePool pool_bi_2= new RoutePool();
 			
+			RoutePool pool_rn= new RoutePool();
+			RoutePool pool_rn_2= new RoutePool();
+			
+			
 			pools.add(pool_nn);
 			pools.add(pool_ni);
 			pools.add(pool_fi);
@@ -280,6 +311,8 @@ public class Solver {
 			pools.add(pool_fi_2);
 			pools.add(pool_bi_2);
 			
+			pools.add(pool_rn);
+			pools.add(pool_rn_2);
 			
 		//9. Starts the pool:
 			
@@ -293,6 +326,9 @@ public class Solver {
 			pool_fi_2.start();
 			pool_bi_2.start();
 			
+			pool_rn.start();
+			pool_rn_2.start();
+			
 		//9.5 Sets all the pools:
 			
 			f_nn.setRoutePool(pool_nn);
@@ -304,6 +340,9 @@ public class Solver {
 			f_ni_2.setRoutePool(pool_ni_2);
 			f_fi_2.setRoutePool(pool_fi_2);
 			f_bi_2.setRoutePool(pool_bi_2);
+			
+			f_rn.setRoutePool(pool_rn);
+			f_rn_2.setRoutePool(pool_rn_2);
 			
 		//10. Stops the clock for the initialization time:
 			
@@ -325,6 +364,9 @@ public class Solver {
 			msh.addSamplingFunction(f_ni_2);
 			msh.addSamplingFunction(f_bi_2);
 			msh.addSamplingFunction(f_fi_2);
+			
+			msh.addSamplingFunction(f_rn);
+			msh.addSamplingFunction(f_rn_2);
 
 		//13. Runs the assembly phase of MSH:
 			
@@ -346,6 +388,7 @@ public class Solver {
 			
 			cpu_msh_assembly = (FinTime_msh-IniTime_msh)/1000000000;
 				
+			
 		//15. Number of sampling iterations done:
 			
 			int it = 0;
@@ -359,10 +402,41 @@ public class Solver {
 			it += f_fi_2.getNuberOfDrawnSamples();
 			it += f_bi_2.getNuberOfDrawnSamples();
 			
+			it += f_rn.getNuberOfDrawnSamples();
+			it += f_rn_2.getNuberOfDrawnSamples();
+			
+			int numConflicts = -1;
+			numConflicts += pool_nn.getNumTimesAlreadyInside();
+			numConflicts += pool_ni.getNumTimesAlreadyInside();
+			numConflicts += pool_fi.getNumTimesAlreadyInside();
+			numConflicts += pool_bi.getNumTimesAlreadyInside();
+			
+			numConflicts += pool_nn_2.getNumTimesAlreadyInside();
+			numConflicts += pool_ni_2.getNumTimesAlreadyInside();
+			numConflicts += pool_fi_2.getNumTimesAlreadyInside();
+			numConflicts += pool_bi_2.getNumTimesAlreadyInside();
+			
+			numConflicts += pool_rn.getNumTimesAlreadyInside();
+			numConflicts += pool_rn_2.getNumTimesAlreadyInside();
+			
+			
+			int numNewRoutes = -1;
+			numNewRoutes += pool_nn.getNumTimesNewRoute();
+			numNewRoutes += pool_ni.getNumTimesNewRoute();
+			numNewRoutes += pool_fi.getNumTimesNewRoute();
+			numNewRoutes += pool_bi.getNumTimesNewRoute();
+			
+			numNewRoutes += pool_nn_2.getNumTimesNewRoute();
+			numNewRoutes += pool_ni_2.getNumTimesNewRoute();
+			numNewRoutes += pool_fi_2.getNumTimesNewRoute();
+			numNewRoutes += pool_bi_2.getNumTimesNewRoute();
+			
+			numNewRoutes += pool_rn.getNumTimesNewRoute();
+			numNewRoutes += pool_rn_2.getNumTimesNewRoute();
 			
 		//16. Prints the solution:
 			
-			printSummary(msh,assembler,it);
+			printSummary(msh,assembler,it,numConflicts,numNewRoutes);
 			printSolution(msh,assembler);
 	
 		
@@ -371,11 +445,13 @@ public class Solver {
 	
 	/**
 	 * This method prints a summary in a txt file with the main statistics of the current run.
-	 * @param msh
-	 * @param assembler
-	 * @param pool
+	 * @param msh MSH object
+	 * @param assemble cplex object
+	 * @param it Number f iterations performed in the sampling phase
+	 * @param numConflicts: Number of times a route was already contained in the pool
+	 * @param numNewRoutes: Number of times a route was completely new for the pool
 	 */
-	public void printSummary(MSH msh, CPLEXSetPartitioningSolver assembler,int it) {
+	public void printSummary(MSH msh, CPLEXSetPartitioningSolver assembler,int it, int numConflicts, int numNewRoutes) {
 		
 		// 1. Defines the path for the txt file:
 		
@@ -414,6 +490,8 @@ public class Solver {
 					pw.println("SizeOfPool;"+msh.getPoolSize());
 					pw.println("SamplingTime(s);"+cpu_msh_sampling);
 					pw.println("AssemblyTime(s);"+cpu_msh_assembly);
+					pw.println("NumberOfConflictingRoutes:"+numConflicts);
+					pw.println("NumberOfNewRoutes:"+numNewRoutes);
 				
 						System.out.println("Summary:");
 						System.out.println("\tInstanceClass: "+instance_class);
@@ -433,7 +511,9 @@ public class Solver {
 						System.out.println("\tNumberOfRings: "+assembler.numberOfRingsSolution);
 						System.out.println("\tIterations: "+it);
 						System.out.println("\tSizeOfPool: "+msh.getPoolSize());
-
+						System.out.println("\tNumberOfConflictingRoutes:"+numConflicts);
+						System.out.println("\tNumberOfNewRoutes:"+numNewRoutes);
+						
 					
 				// Closes the print writer:
 				

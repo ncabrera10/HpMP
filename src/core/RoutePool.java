@@ -62,6 +62,16 @@ public final class RoutePool implements Runnable{
 	private RouteHashCode hashCode;
 
 	/**
+	 * A counter of the number of times the sampling phase generates a route that was already contained in the pool.
+	 */
+	private int numTimesAlreadyInside;
+	
+	/**
+	 * A counter of the number of times the sampling phase generates a new route.
+	 */
+	private int numTimesNewRoute;
+	
+	/**
 	 * Constructs a new {@lnik RoutePool} without any route filtering rule and a default {@link RouteHashCode}. 
 	 * 
 	 * @see {@link PoolFilteringRule} 
@@ -100,6 +110,7 @@ public final class RoutePool implements Runnable{
 	 * a new call to {@link #start()}.
 	 */
 	public final synchronized void stop(){
+		
 		if(!this.isStoring)
 			throw new IllegalStateException("The route pool has not been started");
 		this.isStoring=false;
@@ -113,6 +124,7 @@ public final class RoutePool implements Runnable{
 			Logger.getLogger("EXECUTION").log(Level.INFO,Thread.currentThread().getName()+" stoped the route pool");
 			
 		}
+		
 	}
 
 	@Override
@@ -125,7 +137,13 @@ public final class RoutePool implements Runnable{
 					for(PoolFilteringRule rule:rules){
 						r=rule.filter(r, pool);
 					}
-					this.pool.put(this.hashCode.compute(r),r);
+					if(contains(r)) {
+						numTimesAlreadyInside++;
+					}else {
+						this.pool.put(this.hashCode.compute(r),r);
+						numTimesNewRoute++;
+					}
+					
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -170,14 +188,17 @@ public final class RoutePool implements Runnable{
 	public void add(Route r){
 		this.queue.add(r); //LinkedBlockedQueue should provie thread-safe implementation for this
 	}
+	
 	/**
 	 * Checks if the pool contains a given route
 	 * @param r the route
 	 * @return true if the pool contains the route and false otherwise
 	 */
 	public synchronized boolean contains(Route r){
-		return this.pool.containsValue(this.hashCode.compute(r));
+		//return this.pool.containsValue(this.hashCode.compute(r));
+		return this.pool.containsKey(this.hashCode.compute(r));
 	}
+	
 	//TODO make thread safe
 	//TODO document method
 	public synchronized Route[] toArray(){
@@ -191,5 +212,35 @@ public final class RoutePool implements Runnable{
 		}			
 		return array;		
 	}
+
+
+	/**
+	 * @return the numTimesAlreadyInside
+	 */
+	public int getNumTimesAlreadyInside() {
+		return numTimesAlreadyInside;
+	}
+
+	/**
+	 * @param numTimesAlreadyInside the numTimesAlreadyInside to set
+	 */
+	public void setNumTimesAlreadyInside(int numTimesAlreadyInside) {
+		this.numTimesAlreadyInside = numTimesAlreadyInside;
+	}
+
+	/**
+	 * @return the numTimesNewRoute
+	 */
+	public int getNumTimesNewRoute() {
+		return numTimesNewRoute;
+	}
+
+	/**
+	 * @param numTimesNewRoute the numTimesNewRoute to set
+	 */
+	public void setNumTimesNewRoute(int numTimesNewRoute) {
+		this.numTimesNewRoute = numTimesNewRoute;
+	}
+	
 	
 }

@@ -49,8 +49,12 @@ public class Main_loc {
 			
 			//Number of threads for cplex and the MSH
 			
-				int threads = 1; //Number of threads for cplex and the MSH
+				int threads = Integer.parseInt(args[3]); //Number of threads for cplex and the MSH
 			
+			// Configuration file name:
+				
+				String config_file = args[4];	
+				
 		// ------------------------------------------------------------------	
 			
 		// Main logic:
@@ -104,8 +108,8 @@ public class Main_loc {
 			
 			// Loads the global parameters: some paths, the precision..
 			
-				GlobalParametersReader.initialize("./config/parametersGlobal.xml");
-				setUpConfiguration(seed,threads);
+			GlobalParametersReader.initialize("./config/"+config_file);
+			setUpConfiguration(seed,threads);
 			
 			// Creates a Manager:
 				

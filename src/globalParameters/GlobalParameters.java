@@ -26,6 +26,11 @@ public class GlobalParameters {
 		
 		public static final boolean SPLIT_IMPROVE_PETAL_LKH = GlobalParametersReader.<String>get("SPLIT_IMPROVE_PETAL_LKH", String.class).equals("false") ? false:true;
 		public static final boolean SPLIT_ADD_ALL = GlobalParametersReader.<String>get("SPLIT_ADD_ALL", String.class).equals("false") ? false:true;
+		public static final boolean SPLIT_SOLVE_CSP = GlobalParametersReader.<String>get("SPLIT_SOLVE_CSP", String.class).equals("false") ? false:true;
+		public static final boolean SPLIT_ADD_ONLY_CSP = GlobalParametersReader.<String>get("SPLIT_ADD_ONLY_CSP", String.class).equals("false") ? false:true;
+		public static final int SPLIT_PULSE_NUM_LABELS = GlobalParametersReader.<Integer>get("SPLIT_PULSE_NUM_LABELS", Integer.class);
+		
+		
 		
 		public static final int MSH_MAX_POOL_SIZE = GlobalParametersReader.<Integer>get("MSH_MAX_POOL_SIZE", Integer.class);
 		public static final int MSH_NUM_ITERATIONS = GlobalParametersReader.<Integer>get("MSH_NUM_ITERATIONS", Integer.class);

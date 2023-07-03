@@ -106,5 +106,9 @@ public class HpMPSplit_ALL implements Split{
 		return s;
 	}
 
+	public int getRi() {
+		return ri;
+	}
+
 
 }

@@ -40,15 +40,19 @@ public class Main {
 				
 			// Select the instance you want to run, (i.e., the line of the txt file):
 			
-				int current_instance = 49; 
+				int current_instance = 67; 
 			
 			// Select a seed for the random number generator:
 				
-				int current_rep = 5; //Current replicate
+				int current_rep = 1; //Current replicate
 			
-			//Number of threads for cplex and the MSH
+			// Number of threads for cplex and the MSH
 			
-				int threads = 8; 
+				int threads = 10; 
+				
+			// Configuration file name:
+				
+				String config_file = "default.xml";
 			
 		// ------------------------------------------------------------------	
 			
@@ -102,7 +106,7 @@ public class Main {
 			
 			// Loads the global parameters: some paths, the precision..
 			
-				GlobalParametersReader.initialize("./config/parametersGlobal.xml");
+				GlobalParametersReader.initialize("./config/"+config_file);
 				setUpConfiguration(seed,threads);
 			
 			// Creates a Manager:

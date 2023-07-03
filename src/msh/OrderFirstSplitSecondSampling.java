@@ -54,6 +54,7 @@ public class OrderFirstSplitSecondSampling implements SamplingFunction{
 				stop = true;
 			}
 		}
+		
 		return best;
 	}
 
