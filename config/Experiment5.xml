@@ -9,7 +9,7 @@
 
 <entry key="PRECISION">4</entry> 
 <entry key="SEED">1</entry> 
-<entry key="THREADS">4</entry> 
+<entry key="THREADS">10</entry> 
 <entry key="TIME_OUT_POOL_MS">100</entry> 
 
 <entry key="SPLIT_IMPROVE_PETAL_LKH">true</entry>

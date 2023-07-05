@@ -17,9 +17,13 @@ public abstract class Node {
 	
 	public int id; //Id of the node
 	
-	public int minArcs; // Lower bound on the number of arcs needed to reach the end node.
+	public double minArcs; // Lower bound on the number of arcs needed to reach the end node.
 	
 	public double minCost; //Lower bound on the cost to the end node.
+	
+	public double maxArcs; // Upper bound on the number of arcs needed to reach the end node. (The number of arcs associated to the minimum cost path)
+	
+	public double maxCost; //Upper bound on the cost to the end node. (The cost associated to the minimum arcs path).
 	
 	public boolean firstTime; //First time that the node is pulsed?
 	

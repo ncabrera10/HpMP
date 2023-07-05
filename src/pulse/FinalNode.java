@@ -27,7 +27,7 @@ public class FinalNode extends Node{
 	
 		// Check feasibility:
 		
-		if(numberOfArcs == graph.numRingsRequired) {
+		if(numberOfArcs <= graph.numRingsRequired) { //We could force this to be equal. Experiments show is better to allow solutions with <=. 
 			
 			// Check the primal bound:
 			
@@ -36,7 +36,8 @@ public class FinalNode extends Node{
 				// Updates the primal bound:
 				
 					graph.primalBound = cost;
-				
+					graph.numRingsStar = numberOfArcs;
+					
 				// Updates the path:
 					
 					// Clears the path:

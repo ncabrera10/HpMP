@@ -101,12 +101,6 @@ public class MSH implements Algorithm{
 			}
 		}
 		
-		//Stop all the pools:
-		
-		for(RoutePool pool : pools) {
-			pool.stop();
-		}
-		
 		//Assemble the final solution	
 		
 		return assemblyFunction.assembleSolution(bound,pools);
@@ -140,13 +134,7 @@ public class MSH implements Algorithm{
 				}
 			}
 		}
-	
-		//Stop all the pools:
-		
-		for(RoutePool pool : pools) {
-			pool.stop();
-		}
-	
+
 	}
 
 	public Solution run_assembly() {

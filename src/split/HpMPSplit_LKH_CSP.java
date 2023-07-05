@@ -63,20 +63,27 @@ public class HpMPSplit_LKH_CSP implements Split{
 		//Initialize labels
 		int[] P=new int[r.size()-1];			//The predecesor labels
 		double[] V=new double[r.size()-1];		//The shortest path labels: cost
-		int[] A=new int[r.size()-1];		//The shortest path labels: number of arcs
+		double[] A=new double[r.size()-1];		//The shortest path labels: number of arcs
+		
+		double[] Vmax=new double[r.size()-1];		//The shortest path labels: cost
+		double[] Amax=new double[r.size()-1];		//The shortest path labels: number of arcs
 		
 		// Initialize the pulse graph and the labels:
 		PulseGraph pulseGraph = new PulseGraph(this.ri);
 		pulseGraph.nodes.add(new FinalNode(0,pulseGraph));
 		for(int i=1;i<r.size()-2;i++){
 			V[i]=Double.MAX_VALUE;
-			A[i]=Integer.MAX_VALUE;
+			A[i]=Double.MAX_VALUE;
+			Vmax[i]=Double.MAX_VALUE;
+			Amax[i]=Double.MAX_VALUE;
 			pulseGraph.nodes.add(new IntermediateNode(i,pulseGraph));
 		}
 		V[r.size()-2] = Double.MAX_VALUE;
-		A[r.size()-2] = Integer.MAX_VALUE;
-		pulseGraph.nodes.add(new StartNode(r.size()-2,pulseGraph));
+		A[r.size()-2] = Double.MAX_VALUE;
 		
+		Vmax[r.size()-2] = Double.MAX_VALUE;
+		Amax[r.size()-2] = Double.MAX_VALUE;
+		pulseGraph.nodes.add(new StartNode(r.size()-2,pulseGraph));
 		
 		//Build the auxiliary graph and find the shortest path (will be used as bound by the pulse) at the same time
 		for(int i=1; i<r.size(); i++){
@@ -99,10 +106,12 @@ public class HpMPSplit_LKH_CSP implements Split{
 					if(V[i-1] + cost < V[j]){
 						V[j] = V[i-1] + cost;
 						P[j] = i-1;
+						Amax[j] = Amax[i-1] + 1;
 						new Arc(pulseGraph.nodes.get(i-1),pulseGraph.nodes.get(j),cost);
 					}
 					if(A[i-1] + 1 < A[j]) {
 						A[j] = A[i-1] + 1;
+						Vmax[j] = Vmax[i-1] + cost;
 					}
 				}	
 				
@@ -117,11 +126,26 @@ public class HpMPSplit_LKH_CSP implements Split{
 				for(int i=0;i<r.size()-1;i++){
 					pulseGraph.nodes.get(i).minCost = V[i];
 					pulseGraph.nodes.get(i).minArcs = A[i];
+					pulseGraph.nodes.get(i).maxCost = Vmax[i];
+					pulseGraph.nodes.get(i).maxArcs = Amax[i];
 				}
 				
+				int i = r.size()-2;
+				//System.out.println(pulseGraph.nodes.get(i).minCost+ " - "+pulseGraph.nodes.get(i).maxArcs+" - "+pulseGraph.nodes.get(i).maxCost+" - "+pulseGraph.nodes.get(i).minArcs);
+
 			// Pulse the start node:
 				
-				pulseGraph.nodes.get(pulseGraph.nodes.size()-1).pulse(0, 0, new ArrayList<Integer>());
+				if(!(pulseGraph.nodes.get(i).minArcs > ri)) { //We check if the minimum number of arcs is larger than the number of rings required. In that case we won't solve the pulse, as there is not possible to find a feasible solution.
+					
+					if(!(pulseGraph.nodes.get(i).maxArcs == ri)) { //We check if the shortest path in terms of cost, has a number of arcs is equal to the number of rings required. In that case, it won't make sense to solve the pulse, as the SP is also the solution of the CSP.
+						
+						
+						pulseGraph.nodes.get(pulseGraph.nodes.size()-1).pulse(0, 0, new ArrayList<Integer>());
+						
+					}
+					
+				}
+				//System.out.println(pulseGraph.Path+" - "+pulseGraph.primalBound+" - "+pulseGraph.numRingsStar);
 				
 			// Recover the solution of the CSP:
 				

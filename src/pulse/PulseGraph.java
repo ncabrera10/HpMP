@@ -18,6 +18,8 @@ public class PulseGraph {
 	
 	public double primalBound; //Current cost of the best solution
 	
+	public int numRingsStar; //Number of rings in the best solution found so far.
+	
 	public ArrayList<Integer> Path; //Path associated to the best solution
 	
 	public ArrayList<Node> nodes; //Nodes in the graph. 0: end node. 1 to nodes.size()-2: intermediate nodes. nodes.size()-1: start node.

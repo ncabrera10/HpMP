@@ -314,20 +314,6 @@ public class Solver {
 			pools.add(pool_rn);
 			pools.add(pool_rn_2);
 			
-		//9. Starts the pool:
-			
-			pool_nn.start();
-			pool_ni.start();
-			pool_fi.start();
-			pool_bi.start();
-			
-			pool_nn_2.start();
-			pool_ni_2.start();
-			pool_fi_2.start();
-			pool_bi_2.start();
-			
-			pool_rn.start();
-			pool_rn_2.start();
 			
 		//9.5 Sets all the pools:
 			
